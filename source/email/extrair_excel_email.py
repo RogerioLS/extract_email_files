@@ -170,7 +170,7 @@ def extrair_excel_email(pasta_raiz_quantum: str, headline_prefix: str):
                         )
                         print_log("INFO", msg_anexo_salvo, theme_color=theme_color)
                         logger_quantum.info(msg_anexo_salvo)
-                        return
+                        return nome_formatado
 
         except Exception as e:
             error_detail = f"Falha ao processar o e-mail: {msg.Subject if 'msg' in locals() else 'Desconhecido'}."
