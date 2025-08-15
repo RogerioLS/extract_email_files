@@ -1,5 +1,7 @@
 import os
+import time
 import warnings
+from pathlib import Path
 
 import pandas as pd
 from colorama import Fore
@@ -24,14 +26,56 @@ THEME_COLOR = Fore.MAGENTA
 PASTA_RAIZ_QUANTUM = os.getenv("PASTA_RAIZ_QUANTUM")
 HEADLINE_PREFIX = os.getenv("HEADLINE_PREFIX")
 
+# Configurações da lógica de retentativa
+MAX_TENTATIVAS = 3
+INTERVALO_TENTATIVAS_SEGUNDOS = 60
+
 
 def main():
-    # --- ETAPA 1: Extrair anexo do e-mail ---
+    # --- ETAPA 1: Extrair anexo do e-mail com lógica de retentativa ---
     print_log(
         "AÇÃO", "Iniciando extração de anexo do e-mail...", theme_color=THEME_COLOR
     )
-    extrair_excel_email(PASTA_RAIZ_QUANTUM, HEADLINE_PREFIX)
-    logger_quantum.info("Extração de e-mail concluída.")
+    arquivo_salvo = False
+    for tentativa in range(1, MAX_TENTATIVAS + 1):
+        print_log(
+            "AÇÃO",
+            f"Tentativa {tentativa}/{MAX_TENTATIVAS}: Buscando e-mail e extraindo anexo...",
+            theme_color=THEME_COLOR,
+        )
+        nome_arquivo_esperado = extrair_excel_email(PASTA_RAIZ_QUANTUM, HEADLINE_PREFIX)
+
+        if nome_arquivo_esperado:
+            caminho_completo_arquivo = Path(PASTA_RAIZ_QUANTUM) / nome_arquivo_esperado
+            if caminho_completo_arquivo.is_file():
+                print_log(
+                    "INFO",
+                    f"Sucesso! Arquivo '{nome_arquivo_esperado}' encontrado na pasta.",
+                    theme_color=Fore.GREEN,
+                )
+                logger_quantum.info(
+                    f"Arquivo '{nome_arquivo_esperado}' validado com sucesso na tentativa {tentativa}."
+                )
+                arquivo_salvo = True
+                break  # Sai do loop de tentativas
+
+        print_log(
+            "AVISO",
+            f"Arquivo não encontrado na tentativa {tentativa}. Aguardando {INTERVALO_TENTATIVAS_SEGUNDOS} segundos...",
+            theme_color=Fore.YELLOW,
+        )
+        if tentativa < MAX_TENTATIVAS:
+            time.sleep(INTERVALO_TENTATIVAS_SEGUNDOS)
+
+    if not arquivo_salvo:
+        msg_falha = "Arquivo não foi baixado após todas as tentativas."
+        print_log("ERROR", msg_falha)
+        logger_quantum.error(msg_falha)
+        return print_log(
+            "INFO",
+            "❌ --- PROCESSO QUANTUM INTERROMPIDO --- ❌",
+            theme_color=THEME_COLOR,
+        )
 
     # --- ETAPA 2: Processar a planilha e verificar a qualidade dos dados ---
     limites_null = 30
@@ -40,7 +84,9 @@ def main():
         f"Processando planilha e verificando se há mais de {limites_null} valores nulos...",
         theme_color=THEME_COLOR,
     )
-    resultado_processamento = processar_excel_extraido(PASTA_RAIZ_QUANTUM, limites_null)
+    resultado_processamento = processar_excel_extraido(
+        Path(PASTA_RAIZ_QUANTUM), limites_null
+    )
     logger_quantum.info("Processamento da planilha concluído.")
 
     # --- ETAPA 3: Tomar decisão com base na qualidade dos dados ---
