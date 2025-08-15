@@ -1,4 +1,15 @@
-## Quantum - Automated Email Excel Processor
+<div align = center>
+
+## :books: Quantum - Automated Email Excel Processor
+
+![License](https://custom-icon-badges.demolab.com/github/license/RogerioLS/extract_email_files?logo=law&color=dark-green)
+![Last commit](https://custom-icon-badges.demolab.com/github/last-commit/RogerioLS/extract_email_files?logo=history&color=dark-green)
+![Code size in bytes](https://img.shields.io/github/languages/code-size/RogerioLS/extract_email_files?logo=file-code&color=dark-green)
+![Repo size](https://img.shields.io/github/repo-size/RogerioLS/extract_email_files?logo=database)
+![Top language](https://img.shields.io/github/languages/top/RogerioLS/extract_email_files?color=dark-green)
+![Languages](https://custom-icon-badges.demolab.com/github/languages/count/RogerioLS/extract_email_files?logo=command-palette&color=red)
+[![Pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
+</div>
 
 ### Overview
 
