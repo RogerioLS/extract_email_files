@@ -32,8 +32,9 @@ def enviar_email_sucesso():
     email_remetente = os.getenv("EMAIL_USER")
     senha_remetente = os.getenv("EMAIL_PASSWORD")
     email_destinatario = os.getenv("EMAIL_DESTINATARIO")
+    lista_destinatarios = [email.strip() for email in email_destinatario.split(",")]
 
-    if not all([email_remetente, senha_remetente, email_destinatario]):
+    if not all([email_remetente, senha_remetente, lista_destinatarios]):
         error_msg = (
             "As variáveis de ambiente EMAIL_USER, EMAIL_PASSWORD ou"
             " EMAIL_DESTINATARIO não foram encontradas."
@@ -44,7 +45,7 @@ def enviar_email_sucesso():
 
     logger_quantum.info(
         "Credenciais e destinatário carregados. Preparando para enviar e-mail de"
-        f" sucesso para {email_destinatario}."
+        f" sucesso para {lista_destinatarios}."
     )
 
     # Configurações do servidor SMTP (Outlook)
@@ -54,7 +55,7 @@ def enviar_email_sucesso():
     # --- CRIAÇÃO DA MENSAGEM ---
     msg = MIMEMultipart()
     msg["From"] = email_remetente
-    msg["To"] = email_destinatario
+    msg["To"] = ", ".join(lista_destinatarios)
     msg["Subject"] = "✅ Processo Concluído com Sucesso"
 
     corpo_email = """
@@ -85,7 +86,7 @@ def enviar_email_sucesso():
             server.login(email_remetente, senha_remetente)
             logger_quantum.info("Login no servidor SMTP realizado com sucesso.")
             server.send_message(msg)
-            success_msg = f"E-mail de sucesso enviado para {email_destinatario}!"
+            success_msg = f"E-mail de sucesso enviado para {lista_destinatarios}!"
             print_log("INFO", success_msg, theme_color=theme_color)
             logger_quantum.info(success_msg)
 

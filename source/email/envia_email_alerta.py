@@ -40,8 +40,9 @@ def enviar_email_alerta(contagem_nan: int, limite: int):
     email_remetente = os.getenv("EMAIL_USER")
     senha_remetente = os.getenv("EMAIL_PASSWORD")
     email_destinatario = os.getenv("EMAIL_DESTINATARIO")
+    lista_destinatarios = [email.strip() for email in email_destinatario.split(",")]
 
-    if not all([email_remetente, senha_remetente, email_destinatario]):
+    if not all([email_remetente, senha_remetente, lista_destinatarios]):
         error_msg = (
             "As variáveis de ambiente EMAIL_USER, EMAIL_PASSWORD ou"
             " EMAIL_DESTINATARIO não foram encontradas."
@@ -52,7 +53,7 @@ def enviar_email_alerta(contagem_nan: int, limite: int):
 
     logger_quantum.info(
         "Credenciais e destinatário carregados. Preparando para enviar alerta para"
-        f" {email_destinatario}."
+        f" {lista_destinatarios}."
     )
 
     # Configurações do servidor SMTP (Outlook)
@@ -62,7 +63,7 @@ def enviar_email_alerta(contagem_nan: int, limite: int):
     # --- CRIAÇÃO DA MENSAGEM ---
     msg = MIMEMultipart()
     msg["From"] = email_remetente
-    msg["To"] = email_destinatario
+    msg["To"] = ", ".join(lista_destinatarios)
     msg["Subject"] = (
         f"⚠️ Alerta de Qualidade de Dados: {contagem_nan} Valores Nulos Encontrados"
     )
@@ -101,7 +102,7 @@ def enviar_email_alerta(contagem_nan: int, limite: int):
             logger_quantum.info("Login no servidor SMTP realizado com sucesso.")
             server.send_message(msg)
             success_msg = (
-                f"E-mail de alerta enviado com sucesso para {email_destinatario}!"
+                f"E-mail de alerta enviado com sucesso para {lista_destinatarios}!"
             )
             print_log("INFO", success_msg, theme_color=Fore.GREEN)
             logger_quantum.info(success_msg)
