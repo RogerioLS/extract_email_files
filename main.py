@@ -7,11 +7,13 @@ import pandas as pd
 from colorama import Fore
 from dotenv import load_dotenv
 
-from source.email.envia_email_alerta import enviar_email_alerta
-from source.email.envia_email_sucesso import enviar_email_sucesso
+# from source.email.envia_email_alerta import enviar_email_alerta
+# from source.email.envia_email_sucesso import enviar_email_sucesso
 from source.email.extrair_excel_email import extrair_excel_email
 from source.logger.logger_config import logger_quantum, print_log
 from source.manipulacao_excel.manipulacao_excel import processar_excel_extraido
+from source.teams.envia_teams_alerta import enviar_teams_alerta
+from source.teams.envia_teams_sucesso import enviar_teams_sucesso
 
 warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl")
 
@@ -25,6 +27,7 @@ THEME_COLOR = Fore.MAGENTA
 # Carrega as variáveis de ambiente necessárias
 PASTA_RAIZ_QUANTUM = os.getenv("PASTA_RAIZ_QUANTUM")
 HEADLINE_PREFIX = os.getenv("HEADLINE_PREFIX")
+TEAMS_WEBHOOK_URL = os.getenv("TEAMS_WEBHOOK_URL")
 
 # Configurações da lógica de retentativa
 MAX_TENTATIVAS = 5
@@ -101,9 +104,9 @@ def main():
             f"Validação falhou: {contagem_nan} valores nulos encontrados (limite: {limites_null})."
         )
 
-        print_log("AÇÃO", "Enviando e-mail de alerta...", theme_color=THEME_COLOR)
-        enviar_email_alerta(contagem_nan, limites_null)
-        logger_quantum.info("E-mail de alerta enviado.")
+        print_log("AÇÃO", "Enviando alerta para o Teams...", theme_color=THEME_COLOR)
+        enviar_teams_alerta(contagem_nan, limites_null)
+        logger_quantum.info("Alerta enviado para o Teams.")
         return print_log(
             "INFO",
             "❌ --- PROCESSO QUANTUM INTERROMPIDO DEVIDO A ERRO --- ❌",
@@ -113,11 +116,11 @@ def main():
         # CASO DE SUCESSO: Dados válidos
         print_log(
             "AÇÃO",
-            "Enviando e-mail de confirmação de sucesso...",
+            "Enviando confirmação de sucesso para o Teams...",
             theme_color=THEME_COLOR,
         )
-        enviar_email_sucesso()
-        logger_quantum.info("E-mail de sucesso enviado.")
+        enviar_teams_sucesso()
+        logger_quantum.info("Confirmação de sucesso enviada para o Teams.")
         return print_log(
             "INFO",
             "✅ --- PROCESSO QUANTUM CONCLUÍDO COM SUCESSO --- ✅",
