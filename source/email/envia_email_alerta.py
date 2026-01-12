@@ -9,6 +9,8 @@ from dotenv import load_dotenv
 # Importações locais
 from source.logger.logger_config import logger_quantum, print_log
 
+smtplib.SMTP.debuglevel = 1
+
 # Carrega as variáveis de ambiente do arquivo .env
 load_dotenv()
 
@@ -95,8 +97,10 @@ def enviar_email_alerta(contagem_nan: int, limite: int):
             f"Conectando ao servidor SMTP ({smtp_server})...",
             theme_color=theme_color,
         )
-        with smtplib.SMTP(smtp_server, smtp_port) as server:
+        with smtplib.SMTP(smtp_server, smtp_port, timeout=10) as server:
+            server.ehlo("localhost")
             server.starttls()
+            server.ehlo("localhost")
             logger_quantum.info("Conexão TLS estabelecida.")
             server.login(email_remetente, senha_remetente)
             logger_quantum.info("Login no servidor SMTP realizado com sucesso.")
